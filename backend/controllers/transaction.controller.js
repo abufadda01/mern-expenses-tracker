@@ -188,4 +188,39 @@ const updateTransaction = async (req , res , next) => {
 
 
 
-module.exports = {createTransaction , getUserTransactions , getFilteredTransactions , updateTransaction}
+const deleteTransaction = async (req , res , next) => {
+
+    try {
+        
+        const {transactionId} = req.params
+
+        let transaction = await Transaction.findById(transactionId)
+
+        if(!transaction){
+            return next(createError(`Transaction with this id : ${transactionId} not exist` , 404))
+        }
+
+        if(transaction.user.toString() !== req.user._id.toString()){
+            return next(createError("you don't have permission to update this transaction" , 400))
+        }
+
+        await Transaction.findByIdAndDelete(transactionId)
+
+        res.status(200).json({msg : "transaction deleted successfully"})
+
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+
+
+
+module.exports = {
+    createTransaction , 
+    getUserTransactions , 
+    getFilteredTransactions , 
+    updateTransaction,
+    deleteTransaction
+}

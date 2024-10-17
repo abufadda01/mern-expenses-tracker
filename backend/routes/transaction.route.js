@@ -5,7 +5,8 @@ const {
     createTransaction , 
     getUserTransactions , 
     getFilteredTransactions , 
-    updateTransaction 
+    updateTransaction ,
+    deleteTransaction
 } = require("../controllers/transaction.controller")
 
 
@@ -19,6 +20,8 @@ transactionRouter.get("/" , auth , getUserTransactions)
 transactionRouter.get("/filtered-transactions" , auth , getFilteredTransactions)
 
 transactionRouter.patch("/update-transaction/:transactionId" , auth , updateTransaction)
+
+transactionRouter.delete("/delete-transaction/:transactionId" , auth , deleteTransaction)
 
 
 

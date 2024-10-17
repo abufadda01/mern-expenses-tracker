@@ -73,11 +73,11 @@ const getUserTransactions = async (req , res , next) => {
 const getFilteredTransactions = async (req , res , next) => {
 
     const filteredTransactionSchema = Joi.object({
-        category : Joi.string().min(3) ,
-        startDate : Joi.date() ,
-        endDate : Joi.date() ,
-        type: Joi.string().valid("income" , "expense"),
-        page : Joi.number().default(1)
+        category : Joi.string().min(3).optional() ,
+        startDate : Joi.date().optional() ,
+        endDate : Joi.date().optional() ,
+        type: Joi.string().valid("income" , "expense").optional() ,
+        page : Joi.number().default(1).optional()
     })
 
     const {value , error} = filteredTransactionSchema.validate(req.query , {abortEarly : false})
@@ -109,7 +109,7 @@ const getFilteredTransactions = async (req , res , next) => {
         if(category){
 
             if(category === "All"){
-                // if the value is all so there is no need to make custom filter so we return all category type
+                // if the value is all so there is no need to make custom filter so we return all transactions categories
             }else if(category === "Uncategorized"){
                 filtersObj.category = "Uncategorized"
             }else{
@@ -135,4 +135,57 @@ const getFilteredTransactions = async (req , res , next) => {
 
 
 
-module.exports = {createTransaction , getUserTransactions , getFilteredTransactions}
+const updateTransaction = async (req , res , next) => {
+
+    const updateTransactionSchema = Joi.object({
+        category : Joi.string().min(3).optional() ,
+        description : Joi.string().min(3).optional() ,
+        amount : Joi.number().min(0).optional() ,
+        date : Joi.date().optional() ,
+        type: Joi.string().valid("income" , "expense").optional() ,
+    })
+
+    const {value , error} = updateTransactionSchema.validate(req.body , {abortEarly : false})
+
+    if(error){
+        return next(createError("Invalid Transaction credentials" , 400))
+    }
+
+    try {
+        
+        const {transactionId} = req.params
+        const {type , description , date , amount , category} = value
+
+        let transaction = await Transaction.findById(transactionId)
+
+        if(!transaction){
+            return next(createError(`Transaction with this id : ${transactionId} not exist` , 404))
+        }
+
+        if(transaction.user.toString() !== req.user._id.toString()){
+            return next(createError("you don't have permission to update this transaction" , 400))
+        }
+
+        // Using findOneAndUpdate with a check on user reduces the need for two separate database calls (findById + findByIdAndUpdate).
+        transaction = await Transaction.findOneAndUpdate({ _id : transactionId , user : req.user._id} , {
+            $set : {
+                type ,
+                amount ,
+                category ,
+                description ,
+                date : new Date(date)
+            }
+        } , { new : true})
+
+        res.status(200).json(transaction)
+
+    } catch (error) {
+        next(error)        
+    }
+
+}
+
+
+
+
+module.exports = {createTransaction , getUserTransactions , getFilteredTransactions , updateTransaction}

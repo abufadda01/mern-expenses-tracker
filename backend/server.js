@@ -6,6 +6,8 @@ require("dotenv").config()
 const errorHandler = require("./middlewares/errorHandler")
 const userRouter = require("./routes/users.route")
 const connectDB = require("./db/connectDB")
+const categoryRouter = require("./routes/category.route")
+const transactionRouter = require("./routes/transaction.route")
 
 
 const app = express()
@@ -17,6 +19,8 @@ app.use(cors())
 
 // ! routes
 app.use("/api/v1/users" , userRouter)
+app.use("/api/v1/category" , categoryRouter)
+app.use("/api/v1/transaction" , transactionRouter)
 
 
 // ! custom error handler middleware

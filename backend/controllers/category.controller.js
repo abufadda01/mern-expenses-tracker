@@ -104,7 +104,12 @@ const deleteCategory = async (req , res , next) => {
 
 
 
-module.exports = {addCategory , getUserCategories , updateCategory , deleteCategory}
+module.exports = {
+    addCategory , 
+    getUserCategories , 
+    updateCategory , 
+    deleteCategory
+}
 
 
 

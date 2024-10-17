@@ -10,9 +10,9 @@ categoryRouter.post("/" , auth , addCategory)
 
 categoryRouter.get("/" , auth , getUserCategories)
 
+categoryRouter.patch("/:categoryId" , auth , updateCategory)
 
-
-
+categoryRouter.delete("/:categoryId" , auth , deleteCategory)
 
 
 
